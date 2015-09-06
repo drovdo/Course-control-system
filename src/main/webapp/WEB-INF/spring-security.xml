@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+       http://www.springframework.org/schema/security
+       http://www.springframework.org/schema/security/spring-security-4.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+       <context:component-scan base-package="com.controlSystem.security"/>
+
+       <security:http auto-config="false" use-expressions="true" entry-point-ref="ExtendedEntryPoint">
+              <security:intercept-url pattern="/**" access="isAuthenticated()"/>
+
+              <security:form-login
+                      login-processing-url="/j_spring_security_check"
+                      username-parameter="username"
+                      password-parameter="password"
+                      authentication-failure-handler-ref="ExtendedAuthenticationHandler"
+                      authentication-success-handler-ref="ExtendedAuthenticationHandler"/>
+
+              <security:logout logout-url="/j_spring_security_logout"
+                      delete-cookies="JSESSIONID"
+                      success-handler-ref="ExtendedAuthenticationHandler"/>
+              <security:csrf disabled="true"/>
+       </security:http>
+
+       <security:authentication-manager>
+              <security:authentication-provider user-service-ref="UserDetailsServiceImpl">
+                     <security:password-encoder ref="encoder">
+                     </security:password-encoder>
+              </security:authentication-provider>
+       </security:authentication-manager>
+
+       <bean id="encoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder">
+           <constructor-arg name="strength" value="11" />
+       </bean>
+</beans>
